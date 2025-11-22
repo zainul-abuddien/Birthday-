@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Special Day for Someone Special</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <!-- Load Tone.js for music/sound effects -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
+    <style>
+        /* Custom font setup */
+        body {
+            font-family: 'Inter', sans-serif;
+            /* Deep, romantic background gradient */
+            background: linear-gradient(135deg, #1f0840 0%, #0c021c 100%);
+        }
+
+        /* Keyframes for a subtle, romantic pulse glow on the main card */
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 15px rgba(255, 165, 0, 0.3), 0 0 30px rgba(147, 51, 234, 0.2); }
+            50% { box-shadow: 0 0 25px rgba(255, 165, 0, 0.6), 0 0 50px rgba(147, 51, 234, 0.4); }
+        }
+
+        .special-card {
+            animation: pulse-glow 4s infinite alternate ease-in-out;
+            background: rgba(25, 6, 51, 0.8); /* Dark transparent background for readability */
+            backdrop-filter: blur(8px);
+            border: 2px solid #a78bfa; /* Light border color */
+        }
+
+        /* Confetti particle setup */
+        #confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            opacity: 0;
+            border-radius: 50%;
+            transform: translateY(0) rotate(0);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <!-- Confetti Container -->
+    <div id="confetti-container"></div>
+
+    <!-- Main Content Card -->
+    <div id="birthday-card"
+        class="special-card rounded-xl p-8 max-w-lg w-full text-center text-white transition-all duration-500 transform scale-100">
+
+        <!-- Title and Paragraph content will be set by JavaScript based on the date -->
+        <h1 class="text-4xl sm:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-pink-400 to-purple-500 mb-4">
+            Loading Magic...
+        </h1>
+
+        <p class="text-lg sm:text-xl text-gray-200 mb-8 font-light italic">
+            "A moment of anticipation."
+        </p>
+
+        <div class="space-y-6">
+            <p class="text-2xl font-bold text-yellow-300">
+                
+            </p>
+            <p class="text-gray-300 leading-relaxed">
+                
+            </p>
+           
+        </div>
+
+        <button id="celebrate-button"
+            class="mt-8 px-6 py-3 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-4 focus:ring-purple-500/50"
+            onclick="celebrate()">
+            Click to Celebrate!
+        </button>
+
+        <!-- Message Box for Alerts (instead of alert()) -->
+        <div id="message-box" class="fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center hidden">
+            <div class="bg-gray-800 p-6 rounded-lg shadow-2xl max-w-xs text-center border border-purple-500">
+                <p id="message-text" class="text-white text-xl font-semibold mb-4">
+                    🎉 Happy Birthday! 🎉
+                </p>
+                <button onclick="document.getElementById('message-box').classList.add('hidden')"
+                        class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // **********************************************
+        // USER CONFIGURATION: CHANGE THIS!
+        // Month is 1 (January) to 12 (December)
+        const CRUSH_BIRTHDAY_MONTH = 11; 
+        const CRUSH_BIRTHDAY_DAY = 23; 
+        // **********************************************
+
+        // --- Custom Confetti Effect Function (same as before) ---
+        function createConfetti(count) {
+            const container = document.getElementById('confetti-container');
+            const colors = ['#fde047', '#fb7185', '#a78bfa', '#34d399', '#f97316'];
+            const pieces = [];
+
+            for (let i = 0; i < count; i++) {
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti');
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                
+                confetti.style.left = `${Math.random() * 100}vw`;
+                confetti.style.top = `${-20 - Math.random() * 50}px`;
+                
+                container.appendChild(confetti);
+                pieces.push(confetti);
+
+                setTimeout(() => {
+                    confetti.style.transition = `transform ${2 + Math.random() * 2}s linear, opacity 1.5s ease-out`;
+                    confetti.style.opacity = 1;
+                    
+                    const fallDistance = window.innerHeight + 100; 
+                    const horizontalDrift = (Math.random() - 0.5) * 500;
+                    
+                    confetti.style.transform = `translate(${horizontalDrift}px, ${fallDistance}px) rotate(${Math.random() * 360}deg)`;
+                }, 50);
+
+                setTimeout(() => {
+                    confetti.remove();
+                }, 4000); 
+            }
+        }
+        
+        // --- Tone.js Music Chime Setup ---
+        // Initialize Synth and Reverb for a soft, bell-like sound
+        const synth = new Tone.Synth({
+            oscillator: { type: "sine" },
+            envelope: {
+                attack: 0.05,
+                decay: 0.8,
+                sustain: 0,
+                release: 1.5,
+            }
+        }).toDestination();
+        const reverb = new Tone.Reverb(2).toDestination();
+        synth.connect(reverb);
+
+        function playChime() {
+            // Tone.js needs a user gesture (like a click) to start the audio context.
+            if (Tone.context.state !== 'running') {
+                Tone.start();
+            }
+            // Play a gentle C major 7th chord
+            synth.triggerAttackRelease("C4", "8n", Tone.now());
+            synth.triggerAttackRelease("E4", "8n", Tone.now() + 0.1);
+            synth.triggerAttackRelease("G4", "8n", Tone.now() + 0.2);
+            synth.triggerAttackRelease("B4", "4n", Tone.now() + 0.3);
+        }
+        
+        // --- Date Check Logic ---
+        function checkDateAndSetContent() {
+            const today = new Date();
+            // getMonth() is 0-indexed, so we add 1 for comparison with user's 1-12 input
+            const currentMonth = today.getMonth() + 1; 
+            const currentDay = today.getDate();
+            
+            const h1Element = document.querySelector('#birthday-card h1');
+            const introParagraph = document.querySelector('#birthday-card p.italic');
+            const mainMessageElement = document.querySelector('#birthday-card .space-y-6 p:nth-child(1)');
+            const subMessageElement = document.querySelector('#birthday-card .space-y-6 p:nth-child(2)');
+            const button = document.getElementById('celebrate-button');
+
+            // Check if today is the actual birthday
+            if (currentMonth === CRUSH_BIRTHDAY_MONTH && currentDay === CRUSH_BIRTHDAY_DAY) {
+                // ACTUAL BIRTHDAY CONTENT: Removed "My Love"
+                h1Element.textContent = "It's THE Special Day!";
+                introParagraph.textContent = "The whole universe paused just for this moment.";
+                mainMessageElement.innerHTML = 'Happy Birthday!'; // Now just "Happy Birthday!"
+                subMessageElement.textContent = "Sending you the brightest wish for a day filled with everything wonderful you deserve. May this year be your best chapter yet.";
+                button.textContent = "Click to Celebrate!";
+
+            } else {
+                // OTHER DAY CONTENT: Still sweet, but less definitive
+                h1Element.textContent = "A Very Special Day";
+                introParagraph.textContent = "Every day is a gift, but today is extra special.";
+                mainMessageElement.textContent = "Warmest Wishes!";
+                subMessageElement.textContent = "Wishing you joy and wonderful moments today. May this year bring you closer to all your dreams.";
+                button.textContent = "Send Warm Wishes";
+            }
+        }
+
+        // --- Main Celebration Logic ---
+        let hasCelebrated = false;
+
+        function celebrate() {
+            if (hasCelebrated) {
+                const messageBox = document.getElementById('message-box');
+                document.getElementById('message-text').textContent = "The celebration is already in full swing! 🎉";
+                messageBox.classList.remove('hidden');
+                return;
+            }
+
+            // 1. Play the musical chime (new feature!)
+            playChime();
+
+            // 2. Trigger the main Confetti effect
+            createConfetti(80);
+
+            // 3. Change the button style
+            const button = document.getElementById('celebrate-button');
+            button.textContent = "Celebration Active!";
+            button.classList.add('opacity-70');
+            
+            // 4. Scale up the card slightly for visual feedback
+            const card = document.getElementById('birthday-card');
+            card.classList.add('scale-105');
+            setTimeout(() => {
+                card.classList.remove('scale-105');
+            }, 500);
+
+            hasCelebrated = true;
+        }
+
+        // Automatically trigger everything when the page loads
+        window.onload = () => {
+             // 1. Set the dynamic content based on the date
+             checkDateAndSetContent();
+             // 2. Then trigger a small initial confetti burst
+             createConfetti(30);
+        };
+    </script>
+</body>
+</html>
+</html>
